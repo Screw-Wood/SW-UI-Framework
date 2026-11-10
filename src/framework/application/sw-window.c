@@ -113,14 +113,16 @@ sw_window_unmap (GtkWidget *widget)
 }
 
 static void
-sw_window_destroy (GtkWindow *window)
+sw_window_destroy_signal (GtkWidget *widget,
+                           gpointer   user_data)
 {
-  SwWindow *self = SW_WINDOW (window);
+  (void) user_data;
 
-  sw_window_set_state (self, SW_WINDOW_STATE_DESTROYED);
-
-  if (GTK_WINDOW_CLASS (sw_window_parent_class)->destroy != NULL)
-    GTK_WINDOW_CLASS (sw_window_parent_class)->destroy (window);
+  /* GtkWidget::destroy, emitted by gtk_window_destroy(), has no class
+   * vfunc slot in GTK4's GtkWidgetClass/GtkWindowClass to override, so
+   * this is a plain signal connection rather than a chained-up vfunc
+   * like sw_window_map()/sw_window_unmap() above. */
+  sw_window_set_state (SW_WINDOW (widget), SW_WINDOW_STATE_DESTROYED);
 }
 
 static void
@@ -169,14 +171,11 @@ sw_window_class_init (SwWindowClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
-  GtkWindowClass *window_class = GTK_WINDOW_CLASS (klass);
 
   object_class->finalize = sw_window_finalize;
 
   widget_class->map = sw_window_map;
   widget_class->unmap = sw_window_unmap;
-
-  window_class->destroy = sw_window_destroy;
 
   klass->state_changed = sw_window_class_state_changed;
 
@@ -213,6 +212,8 @@ sw_window_init (SwWindow *self)
 
   g_signal_connect (self, "notify::is-active",
                      G_CALLBACK (sw_window_notify_is_active), NULL);
+  g_signal_connect (self, "destroy",
+                     G_CALLBACK (sw_window_destroy_signal), NULL);
 }
 
 GtkWidget *
