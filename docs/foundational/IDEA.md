@@ -154,6 +154,8 @@ A sensible initial set:
 
 A control should not be considered complete merely because it renders. It should have defined sizing, states, keyboard behavior, accessibility semantics, scaling behavior, and tests.
 
+v1's target is a corporate MVP: this list should stay small, but everything on it is held to the release-gating standard in [Architecture.md](Architecture.md), not a reduced "good enough for a demo" bar.
+
 ## 10. What success looks like
 
 SW is succeeding when an independent developer can:

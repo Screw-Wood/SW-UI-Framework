@@ -5,8 +5,10 @@ These are the documents that establish why SW exists, what it is intended to be,
 Read them in this order:
 
 1. [IDEA.md](IDEA.md) — the problem SW is trying to solve, what it is and is not, who could benefit, and what success looks like. Start here.
-2. [RESEARCH.md](RESEARCH.md) — the ecosystem and technical research that informs the proposal: existing toolkits, design references, and the platform libraries SW intends to build on.
+2. [RESEARCH.md](RESEARCH.md) — the ecosystem and technical research that informs the proposal: existing toolkits, design references, platform libraries SW builds on, and the Android/GTK4 lifecycle research behind proposal 0002.
 3. [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) — the proposed architecture: ownership boundaries, the GTK4 integration strategy, module layout, and development phases.
+4. [Architecture.md](Architecture.md) — the v1 standard: versioning/ABI policy, coding and review gates, the testing and accessibility release gate, and what "corporate MVP" means for v1 concretely.
+5. [design-doc.md](design-doc.md) — the concrete numeric design-system values (spacing grid, elevation scale, contrast thresholds, typography constraints) that SYSTEM_DESIGN.md §8.2's token categories resolve to for v1.
 
 ## Status
 

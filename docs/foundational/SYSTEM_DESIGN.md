@@ -28,6 +28,8 @@ It is deliberately explicit about what SW owns and what it delegates to existing
 | Compatibility policy | Establish before declaring the API stable |
 | Dependency ownership | Policy-driven, re-evaluated per concern — see [proposal 0001](../proposal/0001-dependency-ownership-policy.md) |
 | Application/window lifecycle | Android-shaped enforced state machine + observer interface, owned by SW on top of GTK4's signals — see [proposal 0002](../proposal/0002-lifecycle-ownership-model.md) |
+| v1 target | Corporate MVP: small in scope, release-gated on stability/accessibility/docs — see [Architecture.md](Architecture.md) |
+| v1 compatibility policy | Semantic Versioning + parallel-installable ABI breaks — see [Architecture.md §2](Architecture.md#2-versioning-and-compatibility-policy) |
 
 This is a proposal, not a claim that these choices have all been validated. The dependency-ownership and lifecycle rows are the two decisions formalized so far; see [docs/proposal](../proposal/README.md) for the rest as they are accepted.
 
@@ -274,6 +276,8 @@ Token families should include:
 - Focus indicators and interaction-state overlays.
 
 Token names should describe intent rather than encode a specific color value. For example, a widget should use a semantic primary-action token rather than hard-code a particular blue.
+
+The concrete default values these token families resolve to for v1 — spacing grid, elevation scale, contrast thresholds, typography constraints — are set in [design-doc.md](design-doc.md), not in this document.
 
 ### 8.3 Classic Material inspiration
 

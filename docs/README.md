@@ -8,6 +8,8 @@ This directory holds SW's project documentation. It is organised by the kind of 
   - [The idea](foundational/IDEA.md) — what SW is, why it exists, who it may help, and what success looks like.
   - [Research and references](foundational/RESEARCH.md) — existing projects, technical foundations, and primary references.
   - [System design](foundational/SYSTEM_DESIGN.md) — proposed architecture, ownership boundaries, platform integration, and development phases.
+  - [Architecture](foundational/Architecture.md) — the v1 standard: versioning/ABI policy, testing and accessibility release gates, and what "corporate MVP" means for v1.
+  - [design-doc](foundational/design-doc.md) — concrete numeric design-system values (spacing, elevation, contrast, typography) for v1's default theme.
 
 ## Proposal
 
