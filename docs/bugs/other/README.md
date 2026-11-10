@@ -6,4 +6,4 @@ New bugs go here as `NNNN-short-description.md`. See [how to file a bug](../READ
 
 ## Open bugs
 
-None recorded yet.
+- [0001 — sw-1.0.pc lists GTK/GLib/GObject as Requires.private, breaking plain pkg-config consumers](0001-pc-file-requires-private-gtk.md)

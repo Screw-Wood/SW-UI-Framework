@@ -6,23 +6,26 @@ This is the working plan for the in-flight work described in the [Implementation
 
 **Maintainer decisions.** Several stages need a call that the proposals and foundational documents do not make. Those are listed per stage under *Decisions needed* and are deliberately left open. Nothing in a stage should be built past one of those points until the maintainer has weighed in, and the answer should be recorded (in the stage, or in a proposal if it changes scope or API).
 
+**Known defects.** A manual verification pass (building the tree and probing it directly, ahead of any of these stages having its own automated tests) already turned up eight defects, filed in [docs/bugs](../bugs/README.md) and linked from the stage each one blocks or otherwise concerns. They are not fixed; each stage below notes which of them bear on it. [docs/Implementation/README.md](README.md#component-status) records what that pass found working, alongside these.
+
 ## Status at a glance
 
 | Stage | Title | Status | Covers |
 |---|---|---|---|
 | 0 | Scaffolding | Done | Source, Meson build, `core/` unit test |
-| 1 | Widget tests | Not started | Architecture.md section 4 (widget tier) |
-| 2 | Lifecycle and observer tests | Not started | Success criteria 1, 2 |
-| 3 | Accessibility tests | Not started | Success criterion 3; section 4 (accessibility tier) |
-| 4 | Contrast checking | Not started | Success criterion 5 |
-| 5 | Showcase application | Not started | Hosts criteria 1-4; SYSTEM_DESIGN.md Phase 1 |
-| 6 | Visual-regression tests | Not started | Architecture.md section 4 (visual tier) |
-| 7 | Screen-reader review | Not started | Success criterion 4 |
-| 8 | Day-zero sign-off | Not started | All of the above |
+| 1 | Widget tests | Not started — known defects: [widgets/0001](../bugs/widgets/0001-button-keyboard-activation-noop.md), [widgets/0002](../bugs/widgets/0002-button-clicked-outside-release.md) | Architecture.md section 4 (widget tier) |
+| 2 | Lifecycle and observer tests | Not started — known defects: [application/0001](../bugs/application/0001-observer-self-removal-skips-next.md), [application/0002](../bugs/application/0002-state-stale-after-hide-reshow.md) | Success criteria 1, 2 |
+| 3 | Accessibility tests | Not started — blocked by [widgets/0001](../bugs/widgets/0001-button-keyboard-activation-noop.md), [widgets/0003](../bugs/widgets/0003-entry-double-tab-stop.md), [widgets/0004](../bugs/widgets/0004-pointer-target-minimum-unenforced.md) | Success criterion 3; section 4 (accessibility tier) |
+| 4 | Default theme | Not started | Prerequisite for Stage 5 |
+| 5 | Contrast checking | Not started — blocked by Stage 4 | Success criterion 5 |
+| 6 | Showcase application | Not started | Hosts criteria 1-4; SYSTEM_DESIGN.md Phase 1 |
+| 7 | Visual-regression tests | Not started | Architecture.md section 4 (visual tier) |
+| 8 | Screen-reader review | Not started | Success criterion 4 |
+| 9 | Day-zero sign-off | Not started | All of the above |
 
 Criteria numbers refer to [proposal 0003 section 7](../proposal/0003-day-zero-widget-set.md#7-success-criteria-for-day-zero): (1) full lifecycle in order, (2) `SwEntry` commit-on-`UNFOCUSED`, (3) keyboard-only operation with correct focus order, (4) real screen-reader review, (5) checked contrast.
 
-Stages 1-4 are independent of the showcase and can proceed in that order or in parallel. Stage 5 needs 2 and 3 in good shape so the app demonstrates behaviour that is already tested. Stage 6 needs a decision on rendering determinism (below). Stage 7 needs a running app, so it follows 5. Stage 8 closes everything out.
+Stages 1-4 are independent of the showcase and can proceed in that order or in parallel. Stage 5 needs Stage 4's palette to exist before contrast has anything to check. Stage 6 needs 2 and 3 in good shape so the app demonstrates behaviour that is already tested. Stage 7 needs a decision on rendering determinism (below). Stage 8 needs a running app, so it follows 6. Stage 9 closes everything out.
 
 ---
 
@@ -48,8 +51,10 @@ Stages 1-4 are independent of the showcase and can proceed in that order or in p
 
 **Exit.** Every day-zero type has passing widget tests in the `widget` suite under `meson test`.
 
+**Known defects to cover or fix first.** Ad-hoc probing with `xdotool`-driven pointer events (outside this stage's own test tier) already found [widgets/0002](../bugs/widgets/0002-button-clicked-outside-release.md): `SwButton` emits `clicked` on release outside the button, so "press, release, and cancel" should fail until that is fixed. [widgets/0001](../bugs/widgets/0001-button-keyboard-activation-noop.md) (keyboard activation is a no-op) also belongs in this stage's keyboard-interaction coverage.
+
 **Decisions needed.**
-- How input is simulated: GTK's test utilities, synthetic events, or direct activation. This sets how faithful "pointer press/release/cancel" is.
+- How input is simulated: GTK's test utilities, synthetic events, or direct activation. `xdotool` against a real (Xvfb) display worked for the ad-hoc checks above and is a candidate.
 - Whether the base `SwWidget` is tested only through a concrete subclass (it is not directly instantiable).
 
 ---
@@ -68,8 +73,10 @@ Stages 1-4 are independent of the showcase and can proceed in that order or in p
 
 **Exit.** A `lifecycle` suite passes under Xvfb, and each rule from proposal 0002 section 3 maps to at least one test.
 
+**Known defects to cover or fix first.** Ad-hoc probing found [application/0001](../bugs/application/0001-observer-self-removal-skips-next.md) (a self-removing observer makes the next observer skip that callback) and [application/0002](../bugs/application/0002-state-stale-after-hide-reshow.md) (state stays `SHOWN`, not `FOCUSED`, after hide and re-show). The forward and backward orderings on first show/hide, and `FOCUSED ⇄ UNFOCUSED` cycling, were confirmed working.
+
 **Decisions needed.**
-- How window focus changes are driven in a headless environment, since Xvfb has no window manager by default. This may require a lightweight window manager in the test environment or a test hook; it is a test-infrastructure choice the proposals do not make.
+- How window focus changes are driven in a headless environment. The earlier assumption that Xvfb's lack of a default window manager would block this turned out to be wrong for the basic forward/backward ordering and for `FOCUSED ⇄ UNFOCUSED` cycling: driving real key and pointer events with `xdotool` on plain Xvfb (no window manager) was sufficient for those. It was not obviously sufficient for the hide/re-show case in [application/0002](../bugs/application/0002-state-stale-after-hide-reshow.md), which still needs checking under a real window manager before concluding it's a genuine bug rather than a no-WM artifact.
 - Whether the observer must be removed before finalization is enforced (debug assertion) or only documented, per the open details in [proposal 0002 section 6](../proposal/0002-lifecycle-ownership-model.md#6-open-implementation-details).
 
 ---
@@ -85,14 +92,33 @@ Stages 1-4 are independent of the showcase and can proceed in that order or in p
 - Interactive target sizes against the thresholds in Architecture.md section 6 (pointer: at least 24x24dp).
 - Disabled state is announced as disabled.
 
-**Exit.** An `accessibility` suite passes under Xvfb. This stage covers the automated half of criteria 3; the real-assistive-technology half is Stage 7.
+**Exit.** An `accessibility` suite passes under Xvfb. This stage covers the automated half of criteria 3; the real-assistive-technology half is Stage 8.
+
+**Known defects blocking this stage.** [widgets/0001](../bugs/widgets/0001-button-keyboard-activation-noop.md) (`SwButton` keyboard activation is a no-op) and [widgets/0003](../bugs/widgets/0003-entry-double-tab-stop.md) (`SwEntry` is two Tab stops, one of them dead) both block "keyboard-only operation" outright, independent of how this stage's tests are written. [widgets/0004](../bugs/widgets/0004-pointer-target-minimum-unenforced.md) (the 24x24dp pointer target is never enforced; the `SW_METRICS_*` tokens are unused by any widget) blocks the interactive-target-size item. Confirmed working: every day-zero type exposes a real accessible role.
 
 **Decisions needed.**
-- What "keyboard-only operation" means as a test: scripted key events through a real focus chain, or assertions on focusability and tab order. Scripted events are closer to the criterion but need the same input-simulation decision as Stage 1.
+- What "keyboard-only operation" means as a test: scripted key events through a real focus chain, or assertions on focusability and tab order. Scripted events are closer to the criterion but need the same input-simulation decision as Stage 1; `xdotool` against Xvfb is a candidate, as used for the ad-hoc checks above.
 
 ---
 
-## Stage 4 — Contrast checking
+## Stage 4 — Default theme
+
+**Goal.** A real default theme — at minimum a stylesheet and a concrete set of colour values — so that Stage 5's contrast checking has an actual palette to check. Today there is no theme at all: no stylesheet ships, and [design-doc.md](../foundational/design-doc.md) pins spacing, elevation, and typography numbers but no colour values.
+
+**Work.**
+- Decide and record the default theme's colour roles and values (this is itself a [design-doc.md](../foundational/design-doc.md) addition, not something invented ad hoc in code).
+- Wire the theme into the `style/` module alongside the existing metrics tokens.
+- Apply it to the five day-zero widget types across their interactive states.
+
+**Exit.** The day-zero widgets render with a real default theme, giving Stage 5 something to measure.
+
+**Decisions needed.**
+- Whether day zero ships one theme (light only) or also a dark theme; a second theme doubles the matrix in Stage 5 and Stage 7 (visual-regression).
+- Who owns the actual colour values — this is a design decision for [design-doc.md](../foundational/design-doc.md), not an implementation detail.
+
+---
+
+## Stage 5 — Contrast checking
 
 **Goal.** Criterion 5: every rendered color/text/UI-component combination meets [design-doc.md section 4](../foundational/design-doc.md#4-color-and-contrast), checked rather than assumed.
 
@@ -105,12 +131,12 @@ Stages 1-4 are independent of the showcase and can proceed in that order or in p
 **Exit.** A contrast test runs under `meson test` and covers every role/state pair the day-zero widgets use. Any failure is either fixed or filed in [docs/bugs/style](../bugs/style/README.md).
 
 **Decisions needed.**
-- Which themes exist at day zero. [design-doc.md section 4](../foundational/design-doc.md#4-color-and-contrast) requires each shipped theme to be checked independently; if a dark theme ships, it doubles the matrix here and in Stage 6.
+- Which themes exist at day zero. [design-doc.md section 4](../foundational/design-doc.md#4-color-and-contrast) requires each shipped theme to be checked independently; if a dark theme ships, it doubles the matrix here and in Stage 7 (visual-regression).
 - Whether the check reads token values directly from `style/sw-metrics.h` and the theme, or from rendered output. Reading tokens is cheaper; rendered output is closer to "what the user sees".
 
 ---
 
-## Stage 5 — Showcase application
+## Stage 6 — Showcase application
 
 **Goal.** A small application built *only* from `sw_application`, `sw_window`, `SwBox`, `SwLabel`, `SwButton`, and `SwEntry`, as required by [proposal 0003 section 7](../proposal/0003-day-zero-widget-set.md#7-success-criteria-for-day-zero). It is the host for the demonstration and for the screen-reader review.
 
@@ -129,7 +155,7 @@ Stages 1-4 are independent of the showcase and can proceed in that order or in p
 
 ---
 
-## Stage 6 — Visual-regression tests
+## Stage 7 — Visual-regression tests
 
 **Goal.** The visual tier from [Architecture.md section 4](../foundational/Architecture.md#4-testing-gate-for-release): reference renderings of the day-zero widgets across the states and conditions in [SYSTEM_DESIGN.md section 15](../foundational/SYSTEM_DESIGN.md#15-testing-strategy).
 
@@ -147,7 +173,7 @@ Stages 1-4 are independent of the showcase and can proceed in that order or in p
 
 ---
 
-## Stage 7 — Screen-reader review
+## Stage 8 — Screen-reader review
 
 **Goal.** Criterion 4: a review with a real screen reader confirming that `SwWidget`'s accessibility contract holds for each concrete type, not just that role and name are present in code.
 
@@ -163,12 +189,12 @@ Stages 1-4 are independent of the showcase and can proceed in that order or in p
 
 ---
 
-## Stage 8 — Day-zero sign-off
+## Stage 9 — Day-zero sign-off
 
 **Goal.** Confirm the day-zero scope is complete, and move the resulting facts to where users read them.
 
 **Work.**
-- Check all five criteria in [proposal 0003 section 7](../proposal/0003-day-zero-widget-set.md#7-success-criteria-for-day-zero) against evidence from Stages 2-7.
+- Check all five criteria in [proposal 0003 section 7](../proposal/0003-day-zero-widget-set.md#7-success-criteria-for-day-zero) against evidence from Stages 2-8.
 - Confirm each of the five types clears the unit, widget, accessibility, and visual tiers in [Architecture.md section 4](../foundational/Architecture.md#4-testing-gate-for-release).
 - Write the verified facts into [docs/foundational](../foundational/README.md) (for example, what the head and day-zero widgets guarantee), update the component table in the [Implementation index](README.md), and close out this plan.
 

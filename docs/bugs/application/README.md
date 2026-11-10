@@ -6,4 +6,5 @@ New bugs go here as `NNNN-short-description.md`. See [how to file a bug](../READ
 
 ## Open bugs
 
-None recorded yet.
+- [0001 — self-removing lifecycle observer makes the next observer skip a callback](0001-observer-self-removal-skips-next.md)
+- [0002 — window state stays SHOWN, not FOCUSED, after hide and re-show](0002-state-stale-after-hide-reshow.md) (needs re-checking under a real window manager)

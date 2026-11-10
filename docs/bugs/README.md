@@ -23,6 +23,23 @@ If a bug spans areas, file it where it first becomes visible and link it from th
 
 A documentation error, or a disagreement between the code and the [foundational](../foundational/README.md) documents, goes in `other/` (or the area it concerns).
 
+## Open bugs
+
+As of the day-zero verification pass recorded in [Implementation/README.md](../Implementation/README.md), none of the day-zero types is release-gated-complete; these are the specific defects found so far, by area:
+
+| Bug | Area | Blocks |
+|---|---|---|
+| [application/0001](application/0001-observer-self-removal-skips-next.md) — self-removing observer skips the next observer | [application/](application/README.md) | — |
+| [application/0002](application/0002-state-stale-after-hide-reshow.md) — state stays SHOWN after hide/re-show | [application/](application/README.md) | Needs re-check under a real window manager |
+| [widgets/0001](widgets/0001-button-keyboard-activation-noop.md) — SwButton keyboard activation is a no-op | [widgets/](widgets/README.md) | Day-zero criterion 3 |
+| [widgets/0002](widgets/0002-button-clicked-outside-release.md) — SwButton clicks on release outside the button | [widgets/](widgets/README.md) | — |
+| [widgets/0003](widgets/0003-entry-double-tab-stop.md) — SwEntry is two Tab stops | [widgets/](widgets/README.md) | Day-zero criterion 3 |
+| [widgets/0004](widgets/0004-pointer-target-minimum-unenforced.md) — 24dp pointer target not enforced | [widgets/](widgets/README.md) | [STAGES.md](../Implementation/STAGES.md) Stages 3-4 |
+| [widgets/0005](widgets/0005-entry-committed-fires-on-own-focus-out.md) — SwEntry::committed also fires on own focus-out | [widgets/](widgets/README.md) | — |
+| [other/0001](other/0001-pc-file-requires-private-gtk.md) — sw-1.0.pc puts GTK under Requires.private | [other/](other/README.md) | — |
+
+What currently works end to end — the full lifecycle in order, `SwEntry` commit-on-`UNFOCUSED`, pointer clicks and hover/pressed states, and accessible roles on every type — is recorded in [Implementation/README.md](../Implementation/README.md), not here.
+
 ## How to file one
 
 One file per bug, in the right subdirectory, named `NNNN-short-description.md`, where `NNNN` is the next unused number *within that subdirectory*. Use this shape:
