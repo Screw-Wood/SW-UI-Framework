@@ -1,0 +1,69 @@
+/* sw-version.h
+ *
+ * Part of SW's public core API (see docs/foundational/SYSTEM_DESIGN.md
+ * section 6). Ownership and versioning conventions follow
+ * docs/foundational/Architecture.md section 2: SW follows Semantic
+ * Versioning 2.0.0, and these macros are the compile-time half of that
+ * contract; sw_version_string() and sw_check_version() are the runtime
+ * half, for code that links against a version it was not compiled against.
+ */
+
+#ifndef SW_VERSION_H
+#define SW_VERSION_H
+
+#if !defined(SW_INSIDE_SW_H) && !defined(SW_COMPILATION)
+#error "Only <sw.h> can be included directly."
+#endif
+
+#include <glib.h>
+
+G_BEGIN_DECLS
+
+/* Compile-time version, substituted by the build system from the
+ * project() version in the top-level meson.build. Do not hand-edit;
+ * bump the version in meson.build instead. */
+#define SW_VERSION_MAJOR (@SW_VERSION_MAJOR@)
+#define SW_VERSION_MINOR (@SW_VERSION_MINOR@)
+#define SW_VERSION_MICRO (@SW_VERSION_MICRO@)
+#define SW_VERSION_STRING "@SW_VERSION_STRING@"
+
+/**
+ * sw_version_string:
+ *
+ * Returns the runtime version of the SW library SW was linked against,
+ * as "MAJOR.MINOR.MICRO".
+ *
+ * Ownership: transfer-none. The returned string is owned by SW and must
+ * not be freed or modified by the caller.
+ *
+ * Thread-affinity: safe to call from any thread.
+ *
+ * Returns: the version string.
+ */
+const char *sw_version_string (void);
+
+/**
+ * sw_check_version:
+ * @required_major: the major version an application was built against
+ * @required_minor: the minor version an application was built against
+ * @required_micro: the micro version an application was built against
+ *
+ * Checks that the SW library an application has linked against is
+ * compatible with the version it was compiled against, following SW's
+ * compatibility policy (docs/foundational/Architecture.md section 2):
+ * the running library's MAJOR version must match exactly, and its
+ * MINOR.MICRO must be greater than or equal to what was requested.
+ *
+ * Ownership: not applicable (no pointer arguments or return value).
+ *
+ * Thread-affinity: safe to call from any thread.
+ *
+ * Returns: %TRUE if the running SW library satisfies the request.
+ */
+gboolean sw_check_version (guint required_major,
+                            guint required_minor,
+                            guint required_micro);
+
+G_END_DECLS
+
+#endif /* SW_VERSION_H */
