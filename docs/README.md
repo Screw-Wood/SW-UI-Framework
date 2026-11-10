@@ -16,6 +16,7 @@ This directory holds SW's project documentation. It is organised by the kind of 
 - [Proposal index](proposal/README.md) — formal, accepted proposals for features, architecture changes, or API additions.
   - [0001 — Dependency ownership policy](proposal/0001-dependency-ownership-policy.md) — the standing "own vs. outsource" criteria applied to GTK4 and every future dependency.
   - [0002 — Lifecycle ownership model](proposal/0002-lifecycle-ownership-model.md) — the Android-shaped state machine and observer interface for `sw_application`/`sw_window`.
+  - [0003 — Day-zero widget set](proposal/0003-day-zero-widget-set.md) — the head plus the minimum widget set (`SwWidget`, `SwBox`, `SwLabel`, `SwButton`, `SwEntry`) that proves the architecture end to end.
 
 ## Implementation
 

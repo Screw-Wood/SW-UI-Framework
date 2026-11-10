@@ -154,7 +154,7 @@ A sensible initial set:
 
 A control should not be considered complete merely because it renders. It should have defined sizing, states, keyboard behavior, accessibility semantics, scaling behavior, and tests.
 
-v1's target is a corporate MVP: this list should stay small, but everything on it is held to the release-gating standard in [Architecture.md](Architecture.md), not a reduced "good enough for a demo" bar.
+v1's target is a corporate MVP: this list should stay small, but everything on it is held to the release-gating standard in [Architecture.md](Architecture.md), not a reduced "good enough for a demo" bar. [Proposal 0003](../proposal/0003-day-zero-widget-set.md) defines the smaller subset of this list — the head plus five widgets — that has to exist first, before the rest of this list is built on top of it.
 
 ## 10. What success looks like
 

@@ -27,6 +27,7 @@ A proposal does not need a fixed template yet, but it should generally cover:
 |---|---|---|
 | [0001](0001-dependency-ownership-policy.md) | Dependency ownership policy — the standing "own vs. outsource" criteria, applied to GTK4 and every future dependency | Accepted |
 | [0002](0002-lifecycle-ownership-model.md) | Lifecycle ownership model — Android-shaped state machine and observer interface for `sw_application`/`sw_window` | Accepted |
+| [0003](0003-day-zero-widget-set.md) | Day-zero widget set — the head plus the absolute minimum widgets (`SwWidget`, `SwBox`, `SwLabel`, `SwButton`, `SwEntry`) needed to prove the architecture works end to end | Accepted |
 
 ## Status
 

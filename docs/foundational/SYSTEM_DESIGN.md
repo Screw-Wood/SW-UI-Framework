@@ -431,6 +431,7 @@ An eventual application should be able to consume SW using ordinary C build tool
 - Verify the intended visual direction with a showcase mock-up.
 - Confirm accessibility and focus integration are feasible.
 - Decide licensing and contribution governance.
+- Build the head and day-zero widget set defined in [proposal 0003](../proposal/0003-day-zero-widget-set.md) (`sw_application`, `sw_window`, `SwWidget`, `SwBox`, `SwLabel`, `SwButton`, `SwEntry`) and meet its success criteria — this is the concrete form "build a tiny GTK4 custom-widget prototype" above takes.
 
 ### Phase 1 — Foundation
 - Establish repository layout and build system.
