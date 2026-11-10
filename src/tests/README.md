@@ -6,8 +6,9 @@ Tests for `src/framework`, following the testing strategy proposed in [docs/foun
 
 ```text
 src/tests/
-  test-core.c     unit coverage for core/: sw_init, sw_version_string, sw_check_version, sw_error_quark, metrics tokens
   meson.build
+  unit/
+    test-core.c   unit coverage for core/: sw_init, sw_version_string, sw_check_version, sw_error_quark, metrics tokens
 ```
 
 Planned tiers not yet present, per SYSTEM_DESIGN.md section 15:

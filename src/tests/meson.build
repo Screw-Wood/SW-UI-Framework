@@ -12,7 +12,7 @@
 
 test_core_exe = executable(
   'test-core',
-  'test-core.c',
+  'unit/test-core.c',
   dependencies: [sw_dep],
 )
 
