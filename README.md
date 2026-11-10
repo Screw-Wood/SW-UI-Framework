@@ -26,13 +26,20 @@ The project takes inspiration from the visual language of classic Material Desig
 
 ## Documentation
 
-- [The idea](IDEA.md) — what SW is, why it exists, who it may help, and what success looks like.
-- [System design](docs/SYSTEM_DESIGN.md) — proposed architecture, ownership boundaries, platform integration, and development phases.
-- [Research and references](docs/RESEARCH.md) — existing projects, technical foundations, and primary references.
+Start with the [docs index](docs/README.md). Documentation is organised by where a piece of knowledge sits in time:
+
+- [Foundational](docs/foundational/README.md) — the settled facts: the idea, research, architecture, standards, and design-system values. **Start here if you are a user or new to the project.**
+  - [The idea](docs/foundational/IDEA.md) — what SW is, why it exists, who it may help, and what success looks like.
+  - [System design](docs/foundational/SYSTEM_DESIGN.md) — architecture, ownership boundaries, platform integration, and development phases.
+  - [Research and references](docs/foundational/RESEARCH.md) — existing projects, technical foundations, and primary references.
+- [Implementation](docs/Implementation/README.md) — what is being worked on now: build instructions, what the code does today, and the [staged plan](docs/Implementation/STAGES.md).
+- [Proposals](docs/proposal/README.md) — planned changes, logged before they are built.
+- [Farfuture](docs/Farfuture/README.md) — long-range ideas with no commitment.
+- [Bugs](docs/bugs/README.md) — known problems, filed by where they happen.
 
 ## Current project definition
 
-The documents describe an intended project and a proposed architecture. They are not a claim that the toolkit is already implemented, production-ready, or API-stable. Architecture choices marked as proposed should be validated with small prototypes before they become permanent commitments.
+The project is in early implementation: the head and a day-zero widget set exist as source, but they have not yet been verified to the release standard, and the toolkit is not production-ready or API-stable. [Implementation](docs/Implementation/README.md) says what exists and what is outstanding. Architecture choices should still be validated with small prototypes before they become permanent commitments.
 
 ## Contributing
 

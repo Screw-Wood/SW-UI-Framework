@@ -1,6 +1,8 @@
 # Proposal index
 
-This directory is for formal, reviewed proposals: concrete decisions about SW's API, architecture, or scope that go beyond the general direction set out in [docs/foundational](../foundational/README.md).
+This directory is the **future** in the [docs lifecycle](../README.md#the-lifecycle): every planned change is logged here first, as a formal, reviewed proposal, and will be done at some point. Nothing is built without a proposal. When work on a proposal starts, its live status is tracked in [docs/Implementation](../Implementation/README.md); the proposal stays here as the record of *why*. When the work is done and verified, the resulting facts are written into [docs/foundational](../foundational/README.md). Ideas that are not yet committed work belong in [docs/Farfuture](../Farfuture/README.md) instead.
+
+A proposal records a concrete decision about SW's API, architecture, or scope that goes beyond the general direction set out in [docs/foundational](../foundational/README.md).
 
 ## Purpose
 
@@ -21,14 +23,16 @@ A proposal does not need a fixed template yet, but it should generally cover:
 - Compatibility or migration impact, if any.
 - Open questions that still need resolution.
 
-## Accepted proposals
+## Proposals
 
-| # | Title | Status |
-|---|---|---|
-| [0001](0001-dependency-ownership-policy.md) | Dependency ownership policy — the standing "own vs. outsource" criteria, applied to GTK4 and every future dependency | Accepted |
-| [0002](0002-lifecycle-ownership-model.md) | Lifecycle ownership model — Android-shaped state machine and observer interface for `sw_application`/`sw_window` | Accepted |
-| [0003](0003-day-zero-widget-set.md) | Day-zero widget set — the head plus the absolute minimum widgets (`SwWidget`, `SwBox`, `SwLabel`, `SwButton`, `SwEntry`) needed to prove the architecture works end to end | Accepted |
+"Accepted" means the decision is made; it does not mean the work is finished. The Implementation column says where the work stands, and links to the tracking in [docs/Implementation](../Implementation/README.md).
 
-## Status
+| # | Title | Decision | Implementation |
+|---|---|---|---|
+| [0001](0001-dependency-ownership-policy.md) | Dependency ownership policy — the standing "own vs. outsource" criteria, applied to GTK4 and every future dependency | Accepted | Standing policy; applied in the build and source layout. No separate work item. |
+| [0002](0002-lifecycle-ownership-model.md) | Lifecycle ownership model — Android-shaped state machine and observer interface for `sw_application`/`sw_window` | Accepted | In progress: source exists (`sw-lifecycle`, `sw-window`, `sw-application`); verification outstanding — see [STAGES.md](../Implementation/STAGES.md). |
+| [0003](0003-day-zero-widget-set.md) | Day-zero widget set — the head plus the absolute minimum widgets (`SwWidget`, `SwBox`, `SwLabel`, `SwButton`, `SwEntry`) needed to prove the architecture works end to end | Accepted | In progress: source exists; widget/accessibility/visual tests, the section 7 success criteria, and a showcase app are outstanding — see [STAGES.md](../Implementation/STAGES.md). |
 
-These are the first two proposals, resolving the open "how much lifecycle does SW own" question from the foundational discussion. Further proposals should follow the same shape: problem, proposed approach, ownership-boundary call per proposal 0001, compatibility impact, and open questions. This README should be kept in sync as proposals are added.
+## Adding a proposal
+
+Further proposals follow the same shape: problem, proposed approach, ownership-boundary call per proposal 0001, compatibility impact, and open questions. Number them in sequence, add a row to the table above, and keep this README in sync. A proposal that is plausible but not yet something we intend to do goes in [Farfuture](../Farfuture/README.md) and is promoted here when it becomes committed work.

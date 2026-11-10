@@ -10,8 +10,12 @@ Read them in this order:
 4. [Architecture.md](Architecture.md) — the v1 standard: versioning/ABI policy, coding and review gates, the testing and accessibility release gate, and what "corporate MVP" means for v1 concretely.
 5. [design-doc.md](design-doc.md) — the concrete numeric design-system values (spacing grid, elevation scale, contrast thresholds, typography constraints) that SYSTEM_DESIGN.md §8.2's token categories resolve to for v1.
 
+## Where this sits in the lifecycle
+
+Foundational is the **past**: the settled facts and standards of the project, and the directory users and newcomers should read. Per the [docs lifecycle](../README.md#the-lifecycle), content reaches this directory only once it is decided and, for anything that is built, done and verified. Planned work lives in [docs/proposal](../proposal/README.md), work in flight is tracked in [docs/Implementation](../Implementation/README.md), and uncommitted long-range ideas live in [docs/Farfuture](../Farfuture/README.md).
+
 ## Status
 
-These documents describe a proposed project and a proposed architecture. Nothing here is a claim that the toolkit is implemented, production-ready, or API-stable. Decisions marked as proposed should be validated with small prototypes before they are treated as permanent.
+Nothing here is a claim that the toolkit is production-ready or API-stable. Some documents in this directory (notably [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md)) still carry a *Proposed* status line from when they were written; the architecture they describe is being validated through the day-zero prototype tracked in [Implementation](../Implementation/STAGES.md). What the code does today is documented in Implementation, not here.
 
-As the project moves from proposal to implementation, [docs/proposal](../proposal/README.md) records specific decisions — including [0001](../proposal/0001-dependency-ownership-policy.md), the dependency ownership policy, and [0002](../proposal/0002-lifecycle-ownership-model.md), the lifecycle ownership model — and [docs/Implementation](../Implementation/README.md) will track the actual state of the code. These foundational documents should stay stable as a record of the original problem statement and rationale; they are not meant to be rewritten to match every implementation detail. Accepted proposals extend this foundation rather than replacing it.
+These documents are the stable record of the project's problem statement, rationale, and standards. They are not rewritten to match every implementation detail; when the code and these documents disagree, the disagreement is recorded as a bug in [docs/bugs](../bugs/README.md) or as a new proposal. Accepted proposals ([0001](../proposal/0001-dependency-ownership-policy.md), [0002](../proposal/0002-lifecycle-ownership-model.md), [0003](../proposal/0003-day-zero-widget-set.md)) extend this foundation rather than replacing it.
