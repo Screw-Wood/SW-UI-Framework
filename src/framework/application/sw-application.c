@@ -2,7 +2,7 @@
 
 #define SW_COMPILATION
 #include "sw-application.h"
-#include "sw-init.h"
+#include "core/sw-init.h"
 
 struct _SwApplication
 {

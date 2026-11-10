@@ -3,8 +3,8 @@
 #define SW_COMPILATION
 #include "sw-entry.h"
 #include "sw-widget-private.h"
-#include "sw-lifecycle.h"
-#include "sw-window.h"
+#include "application/sw-lifecycle.h"
+#include "application/sw-window.h"
 
 enum
 {

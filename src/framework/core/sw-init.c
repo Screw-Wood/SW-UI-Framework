@@ -2,7 +2,7 @@
 
 #define SW_COMPILATION
 #include "sw-init.h"
-#include "sw-gtk4-bridge.h"
+#include "platform/sw-gtk4-bridge.h"
 
 #include <gtk/gtk.h>
 

@@ -17,7 +17,7 @@
 
 #include <gtk/gtk.h>
 
-#include "sw-widget.h"
+#include "widgets/sw-widget.h"
 
 G_BEGIN_DECLS
 
