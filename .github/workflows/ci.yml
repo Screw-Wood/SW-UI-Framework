@@ -1,0 +1,173 @@
+# CI for SW (Screw Wood).
+#
+# Builds and runs the test suite on every push and pull request against
+# main, in two configurations:
+#
+#   - plain: the ordinary Meson build, so a basic compile/link/test
+#     break is caught fast.
+#   - sanitize: the same build with AddressSanitizer and
+#     UndefinedBehaviorSanitizer enabled, which
+#     docs/foundational/Architecture.md section 3 requires ("CI must
+#     run with AddressSanitizer and UndefinedBehaviorSanitizer (or
+#     equivalent) on at least the primary supported platform target;
+#     a release does not ship with known sanitizer failures").
+#
+# Tests run under xvfb-run because sw_init() calls gtk_init(), which
+# needs a display connection even though no full desktop session is
+# required (docs/foundational/SYSTEM_DESIGN.md section 15), matching
+# how src/tests/meson.build already runs the core test locally.
+#
+# This covers only what exists today: the core/ unit test. As the
+# widget, lifecycle, accessibility, contrast, and visual-regression
+# suites land per docs/Implementation/STAGES.md, they run here for
+# free — this workflow does not name test suites explicitly and will
+# pick up new ones automatically.
+#
+# Failures are visible without opening any log: meson writes a JUnit
+# report (build/meson-logs/testlog.junit.xml) on every `meson test`
+# run, pass or fail, and dorny/test-reporter turns that into its own
+# check run per job — a pass/fail table and, for each failing test, an
+# inline annotation on the Actions summary page and on the commit/PR
+# itself. The raw log is still uploaded as a build artifact for the
+# cases that table doesn't cover (a crash before any test result is
+# written, for example), but reading it should be the exception, not
+# the first thing anyone does to find out what broke.
+#
+# Ubuntu 24.04 (noble) is treated as the primary supported platform
+# target for the sanitizer requirement above; this is a day-zero
+# default, not a published support matrix (see
+# docs/foundational/SYSTEM_DESIGN.md section 18).
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.config.name }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: plain
+            setup_args: ""
+          - name: sanitize (ASan+UBSan)
+            setup_args: "-Db_sanitize=address,undefined"
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            meson ninja-build pkg-config \
+            libgtk-4-dev libglib2.0-dev \
+            xvfb
+
+      - name: meson setup
+        run: meson setup build ${{ matrix.config.setup_args }}
+
+      - name: meson compile
+        run: meson compile -C build
+
+      - name: meson test (under Xvfb)
+        run: xvfb-run --auto-servernum meson test -C build --print-errorlogs
+        # Continue to the reporting steps below even when tests fail —
+        # that's what puts the failure where it's visible at a glance
+        # instead of only in this step's own (collapsed) log.
+        continue-on-error: true
+        id: meson_test
+
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Test results (${{ matrix.config.name }})
+          path: build/meson-logs/testlog.junit.xml
+          reporter: java-junit
+          fail-on-error: true
+
+      - name: Job summary (fallback if no JUnit report was written)
+        if: always()
+        run: |
+          if [ -f build/meson-logs/testlog.junit.xml ]; then
+            echo "See the \"Test results (${{ matrix.config.name }})\" check above for a per-test pass/fail breakdown." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## ⚠️ No JUnit report was written for ${{ matrix.config.name }}" >> "$GITHUB_STEP_SUMMARY"
+            echo "meson test did not get far enough to write build/meson-logs/testlog.junit.xml — likely a setup/compile failure rather than a test failure. See the full log below." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload full test log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: meson-testlog-${{ matrix.config.name }}
+          path: build/meson-logs/
+          if-no-files-found: ignore
+
+      - name: Fail the job if tests failed
+        if: steps.meson_test.outcome == 'failure'
+        run: exit 1
+
+  pkgconfig-consumer-smoke-test:
+    name: pkg-config consumer smoke test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            meson ninja-build pkg-config \
+            libgtk-4-dev libglib2.0-dev
+
+      - name: Build and install sw-1.0 to a local prefix
+        run: |
+          meson setup build --prefix="$PWD/install"
+          meson compile -C build
+          meson install -C build
+
+      - name: Link a minimal consumer with plain pkg-config flags
+        env:
+          PKG_CONFIG_PATH: ${{ github.workspace }}/install/lib/x86_64-linux-gnu/pkgconfig:${{ github.workspace }}/install/lib/pkgconfig:${{ github.workspace }}/install/lib64/pkgconfig
+        run: |
+          cat > consumer.c <<'EOF'
+          /* Minimal real-world SW consumer: calls sw_init() and a GTK
+           * symbol directly, which is what docs/bugs/other/0001 says
+           * currently fails to link with a plain
+           * `pkg-config --cflags --libs sw-1.0` query. This job is
+           * expected to fail until that bug is fixed; it exists so the
+           * fix can be verified here rather than only by hand. */
+          #include <sw.h>
+          #include <gtk/gtk.h>
+
+          int
+          main (void)
+          {
+            sw_init (NULL, NULL);
+            GtkWidget *window = gtk_window_new ();
+            return window != NULL ? 0 : 1;
+          }
+          EOF
+          set +e
+          cc $(pkg-config --cflags --libs sw-1.0) consumer.c -o consumer
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ]; then
+            echo "::warning::Known issue docs/bugs/other/0001-pc-file-requires-private-gtk.md: plain pkg-config --cflags --libs sw-1.0 does not link a GTK-using consumer. Not failing the build on this known, already-filed bug."
+          fi

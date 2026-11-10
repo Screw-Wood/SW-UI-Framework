@@ -26,6 +26,10 @@ meson test -C build       # runs under xvfb-run if available
 meson install -C build    # installs headers under $includedir/sw-1.0 and a sw-1.0.pc
 ```
 
+CI runs the same `meson setup`/`compile`/`test` sequence on every push and pull request against `main`, in a plain configuration and a sanitized one (`-Db_sanitize=address,undefined`), per [Architecture.md section 3](../foundational/Architecture.md#3-coding-and-review-standards)'s requirement that CI run with ASan and UBSan. See [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml). It runs whatever test suites exist at the time — today that's only `core` — and will pick up the widget/lifecycle/accessibility/visual suites from [STAGES.md](STAGES.md) automatically as they land. A third job builds a minimal consumer against the installed `sw-1.0.pc` with plain `pkg-config --cflags --libs` to track [other/0001](../bugs/other/0001-pc-file-requires-private-gtk.md); it currently only warns rather than failing the build, since that bug is already known and open.
+
+A failing test is visible without opening any log: each build-and-test run publishes a separate "Test results (plain)" / "Test results (sanitize (ASan+UBSan))" check with a per-test pass/fail table and inline annotations on the failing tests, generated from the JUnit report Meson writes on every run. The full `meson-logs/` directory is still uploaded as a build artifact, for the rarer case (a crash before any test result is recorded) that table can't show.
+
 ## Component status
 
 | Component | Source | Tests | Day-zero criteria demonstrated | Manually observed (not yet an automated test) |
