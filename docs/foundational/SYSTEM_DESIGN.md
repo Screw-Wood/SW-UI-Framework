@@ -26,16 +26,21 @@ It is deliberately explicit about what SW owns and what it delegates to existing
 | Qt/QML | Not used |
 | Public API | C-first, with future bindings possible |
 | Compatibility policy | Establish before declaring the API stable |
+| Dependency ownership | Policy-driven, re-evaluated per concern — see [proposal 0001](../proposal/0001-dependency-ownership-policy.md) |
+| Application/window lifecycle | Android-shaped enforced state machine + observer interface, owned by SW on top of GTK4's signals — see [proposal 0002](../proposal/0002-lifecycle-ownership-model.md) |
 
-This is a proposal, not a claim that these choices have all been validated.
+This is a proposal, not a claim that these choices have all been validated. The dependency-ownership and lifecycle rows are the two decisions formalized so far; see [docs/proposal](../proposal/README.md) for the rest as they are accepted.
 
 ## 3. Ownership boundaries
 
 A clean boundary is essential. SW should own the user-facing component system and visual rules, while relying on proven infrastructure for operating-system integration.
 
+The boundary below is drawn as a one-time snapshot, but which concerns fall on which side of it is governed going forward by a standing policy rather than being re-decided ad hoc: see [proposal 0001](../proposal/0001-dependency-ownership-policy.md). GTK4 is the current dependency this boundary outsources platform mechanics to; that is a product decision made under that policy, not a permanent architectural identity (see §19).
+
 ### 3.1 SW owns
 
 - Public `sw_*` C API and component contracts.
+- The application/window lifecycle contract: an enforced state machine and an observer interface other SW subsystems and application code subscribe to, built on top of GTK4's application and widget signals rather than exposing them directly. See [proposal 0002](../proposal/0002-lifecycle-ownership-model.md).
 - SW widget types and composition patterns.
 - SW design tokens: color, typography roles, spacing, shape, elevation, and motion.
 - Component states: normal, hover, pressed, focused, selected, disabled, loading, and other relevant states.
@@ -480,6 +485,8 @@ These decisions should be made through prototypes or explicit project policy:
 - Contribution governance and code review policy.
 - Whether language bindings are generated through GObject Introspection or maintained separately.
 
+Two items formerly on this list are resolved: how SW decides what it owns versus outsources (see [proposal 0001](../proposal/0001-dependency-ownership-policy.md)), and the shape of the application/window lifecycle (see [proposal 0002](../proposal/0002-lifecycle-ownership-model.md)).
+
 ## 19. Architecture decision record: initial GTK4 foundation
 
 **Decision:** Use GTK4/GDK as the initial Linux platform foundation, while SW owns its component API and design system. Do not depend on libadwaita or Qt.
@@ -491,9 +498,9 @@ These decisions should be made through prototypes or explicit project policy:
 - SW's public components and visual identity remain its own.
 - Custom widgets must correctly integrate with GTK lifecycle, focus, rendering, and accessibility contracts.
 - GTK4 remains a real dependency and should be documented as such.
-- A future non-GTK backend is not free; it requires a deliberate compatibility layer and substantial implementation work.
+- A future non-GTK backend is not free; it requires a deliberate compatibility layer and substantial implementation work. Whether and when to take on that work is governed by [proposal 0001](../proposal/0001-dependency-ownership-policy.md)'s ongoing per-concern review, not a one-time choice.
 
-**Status:** Proposed; validate with a vertical-slice prototype before locking the design.
+**Status:** Proposed; validate with a vertical-slice prototype before locking the design. GTK4 as the *current* dependency choice is accepted policy under proposal 0001 regardless of that validation outcome — what the prototype validates is implementation feasibility, not whether GTK4 is a permanent commitment.
 
 ## 20. Primary technical references
 

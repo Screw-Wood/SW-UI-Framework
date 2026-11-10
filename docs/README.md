@@ -11,7 +11,9 @@ This directory holds SW's project documentation. It is organised by the kind of 
 
 ## Proposal
 
-- [Proposal index](proposal/README.md) — formal proposals for features, architecture changes, or API additions, once the project has concrete decisions to record.
+- [Proposal index](proposal/README.md) — formal, accepted proposals for features, architecture changes, or API additions.
+  - [0001 — Dependency ownership policy](proposal/0001-dependency-ownership-policy.md) — the standing "own vs. outsource" criteria applied to GTK4 and every future dependency.
+  - [0002 — Lifecycle ownership model](proposal/0002-lifecycle-ownership-model.md) — the Android-shaped state machine and observer interface for `sw_application`/`sw_window`.
 
 ## Implementation
 
@@ -19,6 +21,6 @@ This directory holds SW's project documentation. It is organised by the kind of 
 
 ## How these relate
 
-The foundational documents describe the project as proposed: why it exists and how it is intended to be built. Proposal documents will record specific, reviewed decisions as they are made. Implementation documents will describe what has actually been built, and should stay in sync with the code rather than the original proposal.
+The foundational documents describe the project as proposed: why it exists and how it is intended to be built. Proposal documents record specific, reviewed decisions as they are made — two are accepted so far, covering dependency ownership and the application/window lifecycle. Implementation documents will describe what has actually been built, and should stay in sync with the code rather than the original proposal.
 
 Until there is a working prototype, foundational documents are the most current description of the project. Implementation documentation should only describe what exists in `src/`; it should not restate the proposal.

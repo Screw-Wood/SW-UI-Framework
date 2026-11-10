@@ -117,7 +117,35 @@ References:
 - https://www.gtk.org/docs/architecture/pango
 - https://github.com/GNOME/pango
 
-## 4. Initial conclusion
+## 4. Lifecycle models: Android and GTK4
+
+This research backs [proposal 0002](../proposal/0002-lifecycle-ownership-model.md), which formalises SW's application/window lifecycle.
+
+### Android's Activity lifecycle
+
+Android exposes a fixed, OS-enforced sequence of callbacks on `Activity`: `onCreate → onStart → onResume → (running) → onPause → onStop → onDestroy`, with `onRestart` on the way back to the foreground. The framework enforces that overrides call the superclass implementation — omitting it throws `SuperNotCalledException` — so the contract is enforced, not merely documented. `onPause` work is always expected to be undone in `onResume`, since `onResume` is guaranteed to run after a prior `onPause` when an activity returns to the foreground.
+
+On top of that fixed sequence, Jetpack's Architecture Components add a `Lifecycle` / `LifecycleOwner` / `LifecycleObserver` pattern: any component (not just the Activity itself) can observe lifecycle state and react to it, instead of the Activity manually notifying every subsystem it owns.
+
+Implication: the part of Android's DX worth reproducing is not just "there is a lifecycle" — it's that the lifecycle is an enforced contract, and that other components can subscribe to it declaratively rather than being told about it imperatively.
+
+References:
+- https://8ksec.io/a-blueprint-of-android-activity-lifecycle/
+- https://learn.microsoft.com/en-us/xamarin/android/app-fundamentals/activity-lifecycle/
+- https://www.geeksforgeeks.org/?p=576332 (Lifecycle, LifecycleOwner, LifecycleObserver)
+
+### GTK4's application and widget lifecycle
+
+`GApplication`/`GtkApplication` expose a much flatter, signal-based lifecycle: `startup` (once, primary instance only) → `activate`/`open` (may fire multiple times) → `shutdown`. GTK defaults applications to single-instance; a second launch re-signals the first instance's `activate`/`open` and the second process exits without ever calling `startup` or `shutdown`. Separately, `GtkWidget` has its own realize/map/show/hide/unmap/unrealize/destroy sequence, independent of the application-level signals.
+
+Implication: GTK4 already solves the mechanics — process registration, single-instance handling, window/surface binding — that Android's OS layer solves for Activities. It does not provide Android's enforced-contract or observer-pattern ergonomics on top of those mechanics; that layer is what SW needs to add.
+
+References:
+- https://docs.gtk.org/gtk4/class.Application.html
+- https://developer.gnome.org/documentation/tutorials/application.html
+- https://gtk-rs.org/gtk4-rs/git/docs/gtk4/struct.Application.html
+
+## 5. Initial conclusion
 
 The initial research does not establish that no comparable toolkit exists. There are adjacent projects, and Qt already offers a Material style. The plausible niche for SW is narrower:
 
@@ -125,7 +153,7 @@ The initial research does not establish that no comparable toolkit exists. There
 
 That is a hypothesis to validate, not a market claim. The best next step is a prototype that proves the core proposition: a small application can use SW widgets, obtain a coherent Material-inspired appearance, and retain native Linux integration and accessibility.
 
-## 5. Sources consulted
+## 6. Sources consulted
 
 1. GTK architecture — https://www.gtk.org/docs/architecture/
 2. GTK4 overview — https://docs.gtk.org/gtk4/overview.html
@@ -142,5 +170,11 @@ That is a hypothesis to validate, not a market claim. The best next step is a pr
 13. Qt Quick Controls Material style — https://doc.qt.io/qt-6/qtquickcontrols-material.html
 14. MauiKit — https://mauikit.org/
 15. MauiKit source — https://github.com/kde/mauikit
+16. Android Activity lifecycle (AOSP internals) — https://8ksec.io/a-blueprint-of-android-activity-lifecycle/
+17. Android Activity lifecycle overview — https://learn.microsoft.com/en-us/xamarin/android/app-fundamentals/activity-lifecycle/
+18. Jetpack Lifecycle/LifecycleOwner/LifecycleObserver — https://www.geeksforgeeks.org/?p=576332
+19. GtkApplication class reference — https://docs.gtk.org/gtk4/class.Application.html
+20. Using GtkApplication (GNOME tutorial) — https://developer.gnome.org/documentation/tutorials/application.html
+21. gtk4-rs Application docs — https://gtk-rs.org/gtk4-rs/git/docs/gtk4/struct.Application.html
 
 Research note prepared for the initial SW project documentation. Re-check external references before using them to justify a new technical or compatibility decision.

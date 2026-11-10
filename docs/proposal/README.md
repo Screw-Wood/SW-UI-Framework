@@ -21,6 +21,13 @@ A proposal does not need a fixed template yet, but it should generally cover:
 - Compatibility or migration impact, if any.
 - Open questions that still need resolution.
 
+## Accepted proposals
+
+| # | Title | Status |
+|---|---|---|
+| [0001](0001-dependency-ownership-policy.md) | Dependency ownership policy — the standing "own vs. outsource" criteria, applied to GTK4 and every future dependency | Accepted |
+| [0002](0002-lifecycle-ownership-model.md) | Lifecycle ownership model — Android-shaped state machine and observer interface for `sw_application`/`sw_window` | Accepted |
+
 ## Status
 
-No proposals have been written yet — the project is still at the foundational stage described in [docs/foundational](../foundational/README.md). This README will be expanded with a template and an index of accepted proposals once the first one is drafted.
+These are the first two proposals, resolving the open "how much lifecycle does SW own" question from the foundational discussion. Further proposals should follow the same shape: problem, proposed approach, ownership-boundary call per proposal 0001, compatibility impact, and open questions. This README should be kept in sync as proposals are added.
