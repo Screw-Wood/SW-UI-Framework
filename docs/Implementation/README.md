@@ -30,6 +30,8 @@ CI runs the same `meson setup`/`compile`/`test` sequence on every push and pull 
 
 A failing test is visible without opening any log: each build-and-test run publishes a separate "Test results (plain)" / "Test results (sanitize (ASan+UBSan))" check with a per-test pass/fail table and inline annotations on the failing tests, generated from the JUnit report Meson writes on every run. The full `meson-logs/` directory is still uploaded as a build artifact, for the rarer case (a crash before any test result is recorded) that table can't show.
 
+The sanitize job's `ASAN_OPTIONS` sets `detect_leaks=0` (see the comment in `src/tests/meson.build`). Without it, every run fails LeakSanitizer's exit-time scan over memory `libfontconfig`/`libexpat` allocate once, inside `FcInit`, during `gtk_init()`'s font-backend setup — memory fontconfig deliberately keeps alive for the process's lifetime, not a leak in SW's own code and not something SW has a handle on to free. Reproduced locally (GTK 4.14.5, GCC 13.3.0, Ubuntu 24.04, matching CI) both with and without the fix: all 6 `core` tests pass either way, and the run only aborts, past the point every test already passed, on LeakSanitizer's own accounting. `detect_leaks=0` disables only that accounting; a deliberately introduced heap-buffer-overflow was confirmed to still abort the run under the same `ASAN_OPTIONS`, so ASan's and UBSan's actual memory-safety checks are unaffected.
+
 ## Component status
 
 | Component | Source | Tests | Day-zero criteria demonstrated | Manually observed (not yet an automated test) |
